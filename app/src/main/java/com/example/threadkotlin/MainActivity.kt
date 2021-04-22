@@ -17,6 +17,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, View.OnTouchList
     private lateinit var mHandler: Handler
     private lateinit var countDown: Runnable
     private lateinit var up: Runnable
+    private lateinit var swipeUp: Runnable
     private lateinit var down: Runnable
     private var number: Int = 0
 
@@ -74,10 +75,9 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, View.OnTouchList
     private fun increaseNumber() {
         mHandler.removeCallbacks(countDown)
         number++
-        tv_number.text = number.toString()
         changeNumberColor(tv_number, number)
         this.runOnUiThread {
-            tv_number.text
+            tv_number.text = number.toString()
         }
         mHandler.postDelayed(countDown, 2000)
     }
@@ -85,10 +85,9 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, View.OnTouchList
     private fun decreaseNumber() {
         mHandler.removeCallbacks(countDown)
         number--
-        tv_number.text = number.toString()
         changeNumberColor(tv_number, number)
         this.runOnUiThread {
-            tv_number.text
+            tv_number.text = number.toString()
         }
         mHandler.postDelayed(countDown, 2000)
     }
@@ -108,9 +107,9 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, View.OnTouchList
     private fun upWhileHoldPress() {
         up = Runnable {
             mHandler.removeCallbacks(countDown)
-            number++
             when {
                 btn_plus.isPressed -> {
+                    number++
                     mHandler.postDelayed(up, 100)
                     changeNumberColor(tv_number, number)
                     this.runOnUiThread {
@@ -128,9 +127,9 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, View.OnTouchList
     private fun downWhileHoldPress() {
         down = Runnable {
             mHandler.removeCallbacks(countDown)
-            number--
             when {
                 btn_minus.isPressed -> {
+                    number--
                     mHandler.postDelayed(down, 100)
                     changeNumberColor(tv_number, number)
                     this.runOnUiThread {
@@ -146,13 +145,11 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, View.OnTouchList
     }
 
     override fun onTouch(view: View?, motionEvent: MotionEvent?): Boolean {
-        if (view == layout_number && motionEvent?.action == MotionEvent.ACTION_MOVE) {
-            when {
-                motionEvent.y < 0.5 -> {
-                    increaseNumber()
-                }
-                motionEvent.y > 0.5 -> {
-                    decreaseNumber()
+        if (motionEvent?.action == MotionEvent.ACTION_MOVE){
+            if (view != null) {
+                when{
+                    motionEvent.y < view.height*0.5 -> increaseNumber()
+                    motionEvent.y > view.height*0.5 -> decreaseNumber()
                 }
             }
         }
