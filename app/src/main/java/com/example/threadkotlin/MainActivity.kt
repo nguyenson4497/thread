@@ -20,6 +20,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, View.OnTouchList
     private lateinit var swipeUp: Runnable
     private lateinit var down: Runnable
     private var number: Int = 0
+    private var oldY: Float = 0F
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -145,14 +146,27 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, View.OnTouchList
     }
 
     override fun onTouch(view: View?, motionEvent: MotionEvent?): Boolean {
-        if (motionEvent?.action == MotionEvent.ACTION_MOVE){
-            if (view != null) {
-                when{
-                    motionEvent.y < view.height*0.5 -> increaseNumber()
-                    motionEvent.y > view.height*0.5 -> decreaseNumber()
+        mHandler.removeCallbacks(countDown)
+        when (motionEvent?.action) {
+            MotionEvent.ACTION_DOWN -> oldY = motionEvent.y
+            MotionEvent.ACTION_MOVE -> {
+                when {
+                    motionEvent.y < oldY -> {
+                        number++
+                        oldY = motionEvent.y
+                        tv_number.text = number.toString()
+                    }
+                    motionEvent.y > oldY -> {
+                        number--
+                        oldY = motionEvent.y
+                        tv_number.text = number.toString()
+                    }
                 }
             }
+            MotionEvent.ACTION_UP -> oldY = 0F
         }
+        changeNumberColor(tv_number, number)
+        mHandler.postDelayed(countDown, 2000)
         return true
     }
 
